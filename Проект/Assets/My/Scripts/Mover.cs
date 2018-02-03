@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Mover : MonoBehaviour {
-
+    
     public float forwardSpeed; // 3 шаг, 5 бег, 7 спринт
     public float backSpeed;
     public float jumpForce;

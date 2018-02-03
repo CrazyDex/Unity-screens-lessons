@@ -22,6 +22,7 @@ public class Enemy1_II : MonoBehaviour {
     public bool angryReload;
     public float angryReloadTime;
     public GameObject playerGO;
+    public GameObject whatSeenLast;
 
     private void Start()
     {
@@ -41,14 +42,19 @@ public class Enemy1_II : MonoBehaviour {
 
     void FaceToTarget()
     {
-        float x = 0;
-        if (hitGO != null) x = hitGO.transform.position.x - transform.position.x;
-        if (((x < 0) && (signDir > 0)) || ((x > 0) && (signDir < 0))) Flip();
+
+
+
+
+
+        temp = 0;
+        if (whatSeenLast != null) temp = whatSeenLast.transform.position.x - transform.position.x;
+        if (((temp < 0) && (signDir > 0)) || ((temp > 0) && (signDir < 0))) Flip();
     }
 
     void Tactic()
     {
-        //FaceToTarget();
+        FaceToTarget();
         if (Mathf.Abs(hitGO.transform.position.x - transform.position.x) >= 5f)
         {
             if (!shurikenReload && (hitGO.tag != "OnPlayer") && (block == false)) RangeAttack();
@@ -88,6 +94,7 @@ public class Enemy1_II : MonoBehaviour {
             if (hit.collider != null)
             {
                 hitGO = hit.collider.gameObject;
+                whatSeenLast = hitGO;
                 if ((hitGO.tag == "Player") || (hitGO.tag == "OnPlayer"))
                 {
                     angry = true;
@@ -216,19 +223,95 @@ public class Enemy1_II : MonoBehaviour {
 
     void SaveDistance()
     {
-        //расстояние между врагом и персом
+        // модульное расстояние
         temp = hitGO.transform.position.x - transform.position.x;
-        //если перс близко противник отходит, если далеко подходит
-        dir.x = (temp >= 5f) && (temp < 15f) ? -1 : 1;
-        //эта строка чтобы враги не тупили как черти на заданной дальней дистанции
-        if (((dir.x == -1) && (temp >= 14.5f)) || ((dir.x == 1) && (temp <= -14.5f))) dir.x = 0;
+
+        if (Mathf.Abs(temp) >= 15f)//сближаться
+        {
+            dir.x = temp / Mathf.Abs(temp);
+        }
+        else if (Mathf.Abs(temp) < 14f && Mathf.Abs(temp) > 5f)//отбегать
+        {
+            dir.x = -temp / Mathf.Abs(temp);
+        }
+        else//стоять
+        {
+            dir.x = 0;
+        }
         //если враг наступает, то идет со стандартной скоростью
         if ((dir.x > 0 && signDir > 0) || (dir.x < 0 && signDir < 0)) transform.position += dir * forwardSpeed * Time.deltaTime;
+
         //если враг отступает, то идет с замедленной скоростью
         else if ((dir.x > 0 && signDir < 0) || (dir.x < 0 && signDir > 0)) transform.position += dir * backSpeed * Time.deltaTime;
     }
 
     void Catch()
+    {
+        temp = hitGO.transform.position.x - transform.position.x;
+
+        if (Mathf.Abs(temp) > 1.5f)//сближаться
+        {
+            dir.x = temp / Mathf.Abs(temp);
+        }
+        else//стоять
+        {
+            dir.x = 0;
+        }
+
+        transform.position += dir * forwardSpeed * Time.deltaTime;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    void SaveDistanceOld()
+    {
+        //расстояние между врагом и персом
+        temp = hitGO.transform.position.x - transform.position.x;
+        //если перс близко противник отходит, если далеко подходит
+        dir.x = (((temp >= 5f) && (temp < 15f)) || ((temp <= -5f) && (temp > -15f))) ? -1 : 1;
+
+        //if ()
+
+        //эта строка чтобы враги не тупили как черти на заданной дальней дистанции
+        if (((dir.x == -1) && (temp >= 14.5f)) || ((dir.x == 1) && (temp <= -14.5f))) dir.x = 0;
+        //если враг наступает, то идет со стандартной скоростью
+        if ((dir.x > 0 && signDir > 0) || (dir.x < 0 && signDir < 0)) transform.position += dir * forwardSpeed * Time.deltaTime;
+
+        //противник      10       игрок
+        //    -дир 
+
+        //если враг отступает, то идет с замедленной скоростью
+        else if ((dir.x > 0 && signDir < 0) || (dir.x < 0 && signDir > 0)) transform.position += dir * backSpeed * Time.deltaTime;
+    }
+
+    void CatchOld()
     {
         //расстояние между врагом и персом
         temp = hitGO.transform.position.x - transform.position.x;
